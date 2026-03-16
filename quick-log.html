@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="theme-color" content="#080808"/>
+  <title>Quick Log — HydraMind</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      width: 100%; height: 100%;
+      background: #080808;
+      font-family: -apple-system, 'Segoe UI', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    #app {
+      width: 100vw; height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 0;
+      padding: 32px 24px;
+    }
+
+    /* ── Status bar ── */
+    #status-bar {
+      position: fixed; top: 0; left: 0; right: 0;
+      height: 52px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 22px;
+      background: #101010;
+      border-bottom: 1px solid rgba(232,228,220,0.06);
+    }
+    #status-bar .title {
+      font-size: 13px; font-weight: 600;
+      color: #E8E4DC; letter-spacing: 0.04em;
+    }
+    #status-bar .back {
+      font-size: 12px; color: #9A9690;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      text-decoration: none; cursor: pointer;
+    }
+
+    /* ── Today's progress ── */
+    #progress-wrap {
+      margin-top: 52px;
+      width: 100%;
+      text-align: center;
+      padding: 24px 0 20px;
+    }
+    #progress-label {
+      font-size: 10px; font-weight: 600;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: #9A9690; margin-bottom: 10px;
+    }
+    #progress-numbers {
+      font-size: 36px; font-weight: 700;
+      color: #E8E4DC; letter-spacing: -0.03em; line-height: 1;
+    }
+    #progress-numbers span {
+      font-size: 16px; font-weight: 400; color: #9A9690;
+    }
+    #progress-bar-wrap {
+      margin: 14px auto 0; width: 100%; max-width: 280px;
+      height: 4px; background: #171717; border-radius: 2px; overflow: hidden;
+    }
+    #progress-bar {
+      height: 100%; background: #3D7A74;
+      border-radius: 2px;
+      transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+    }
+    #progress-pct {
+      font-size: 11px; color: #4E4C49;
+      margin-top: 8px;
+    }
+
+    /* ── Beverage selector ── */
+    #bev-wrap {
+      width: 100%; max-width: 340px;
+      display: flex; gap: 8px; flex-wrap: wrap;
+      justify-content: center;
+      margin: 4px 0 16px;
+    }
+    .bev-chip {
+      padding: 8px 16px; border-radius: 20px;
+      border: 1px solid rgba(232,228,220,0.08);
+      background: #171717;
+      font-size: 12px; color: #9A9690;
+      cursor: pointer;
+      transition: all 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .bev-chip.active {
+      border-color: #3D7A74;
+      background: rgba(61,122,116,0.18);
+      color: #3D7A74; font-weight: 600;
+    }
+
+    /* ── Amount selector ── */
+    #amount-wrap {
+      display: flex; align-items: center; gap: 20px;
+      margin-bottom: 28px;
+    }
+    .amt-btn {
+      width: 52px; height: 52px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px; cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: opacity 0.1s;
+    }
+    .amt-btn:active { opacity: 0.5; }
+    .amt-btn.minus {
+      border: 1px solid rgba(232,228,220,0.12); background: #171717; color: #E8E4DC;
+    }
+    .amt-btn.plus {
+      border: 1px solid #3D7A74; background: rgba(61,122,116,0.18); color: #3D7A74;
+    }
+    #amount-display {
+      text-align: center; min-width: 100px;
+    }
+    #amount-num {
+      font-size: 42px; font-weight: 700;
+      color: #E8E4DC; letter-spacing: -0.03em; line-height: 1;
+    }
+    #amount-unit { font-size: 14px; color: #9A9690; margin-top: 2px; }
+
+    /* ── Main log button ── */
+    #log-btn {
+      width: 100%; max-width: 340px;
+      height: 68px;
+      border: none; border-radius: 18px;
+      background: #E8E4DC; color: #080808;
+      font-size: 15px; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: background 0.15s, transform 0.1s;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+    }
+    #log-btn:active { transform: scale(0.97); }
+    #log-btn.success {
+      background: #3D7A74; color: #E8E4DC;
+    }
+
+    /* ── BHI info ── */
+    #bhi-info {
+      margin-top: 14px;
+      font-size: 11px; color: #4E4C49;
+      text-align: center; letter-spacing: 0.04em;
+    }
+
+    /* ── Confirmation flash ── */
+    #toast {
+      position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%);
+      background: #171717; border: 1px solid rgba(61,122,116,0.4);
+      border-radius: 14px; padding: 12px 22px;
+      font-size: 13px; color: #3D7A74; font-weight: 600;
+      letter-spacing: 0.06em;
+      opacity: 0; transition: opacity 0.3s;
+      pointer-events: none; white-space: nowrap;
+    }
+    #toast.show { opacity: 1; }
+
+    /* ── Open full app link ── */
+    #open-app {
+      position: fixed; bottom: 88px; left: 50%; transform: translateX(-50%);
+      font-size: 11px; color: #4E4C49;
+      text-decoration: none; letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    #open-app:hover { color: #9A9690; }
+  </style>
+</head>
+<body>
+  <div id="status-bar">
+    <span class="title">HydraMind</span>
+    <a class="back" href="./index.html">Full App ›</a>
+  </div>
+
+  <div id="app">
+    <div id="progress-wrap">
+      <div id="progress-label">Today's intake</div>
+      <div id="progress-numbers">
+        <span id="eff-num">0</span>
+        <span> / <span id="goal-num">2,500</span> ml</span>
+      </div>
+      <div id="progress-bar-wrap">
+        <div id="progress-bar" style="width:0%"></div>
+      </div>
+      <div id="progress-pct" id="pct-text">0% of daily goal</div>
+    </div>
+
+    <div id="bev-wrap" id="bev-wrap"></div>
+
+    <div id="amount-wrap">
+      <div class="amt-btn minus" id="btn-minus">−</div>
+      <div id="amount-display">
+        <div id="amount-num">250</div>
+        <div id="amount-unit">ml</div>
+      </div>
+      <div class="amt-btn plus" id="btn-plus">+</div>
+    </div>
+
+    <button id="log-btn">
+      <span id="log-btn-text">Log Drink</span>
+    </button>
+
+    <div id="bhi-info" id="bhi-info">BHI 1.0 — full hydration value</div>
+  </div>
+
+  <div id="toast">✓ Logged!</div>
+
+  <script>
+    // ── Data ─────────────────────────────────────────────────────────────────
+    const KEY = 'hydramind_v7';
+    const BEVS = [
+      { id:'water_glass',  label:'Water',  bhi:1.0,  sizes:[150,250,350] },
+      { id:'water_bottle', label:'Bottle', bhi:1.0,  sizes:[330,500,750] },
+      { id:'tea',          label:'Tea',    bhi:0.97, sizes:[150,240,350] },
+      { id:'coffee',       label:'Coffee', bhi:0.95, sizes:[120,240,360] },
+      { id:'milk',         label:'Milk',   bhi:1.5,  sizes:[150,200,300] },
+      { id:'juice',        label:'Juice',  bhi:0.9,  sizes:[150,200,330] },
+      { id:'sports',       label:'Sports', bhi:0.98, sizes:[250,500,750] },
+    ];
+
+    function todayKey() {
+      return new Date().toISOString().slice(0, 10);
+    }
+
+    function load() {
+      try {
+        const v = localStorage.getItem(KEY);
+        return v ? JSON.parse(v) : null;
+      } catch(e) { return null; }
+    }
+
+    function save(data) {
+      try { localStorage.setItem(KEY, JSON.stringify(data)); } catch(e) {}
+    }
+
+    function computeGoal(u, wb) {
+      const base = Math.round((u.weight || 70) * 33);
+      const act  = u.activity === 'high' ? 600 : u.activity === 'medium' ? 400 : 150;
+      const clim = u.climate  === 'hot'  ? 400 : u.climate  === 'cold'   ? 0   : 200;
+      return base + act + clim + (u.medication ? 200 : 0) + (wb || 0);
+    }
+
+    // ── State ─────────────────────────────────────────────────────────────────
+    let selectedBev = BEVS[0];
+    let amount = 250;
+
+    // ── Render progress ───────────────────────────────────────────────────────
+    function renderProgress() {
+      const data = load();
+      if (!data) return;
+      const goal = computeGoal(data.userData || {}, 0);
+      const today = (data.dailyLogs || {})[todayKey()] || { effIntake: 0 };
+      const eff = Math.round(today.effIntake || 0);
+      const pct = Math.min(Math.round((eff / goal) * 100), 100);
+
+      document.getElementById('eff-num').textContent = eff.toLocaleString();
+      document.getElementById('goal-num').textContent = goal.toLocaleString();
+      document.getElementById('progress-bar').style.width = pct + '%';
+      document.getElementById('progress-pct').textContent = pct + '% of daily goal';
+
+      // Teal if near goal, danger if over
+      const bar = document.getElementById('progress-bar');
+      bar.style.background = eff > goal * 1.1 ? '#A04040' : '#3D7A74';
+    }
+
+    // ── Render beverages ──────────────────────────────────────────────────────
+    function renderBevs() {
+      const wrap = document.getElementById('bev-wrap');
+      wrap.innerHTML = '';
+      BEVS.forEach(b => {
+        const chip = document.createElement('div');
+        chip.className = 'bev-chip' + (b.id === selectedBev.id ? ' active' : '');
+        chip.textContent = b.label;
+        chip.addEventListener('pointerdown', () => {
+          selectedBev = b;
+          // Set amount to first size option for this bev
+          amount = b.sizes[1] || 250;
+          renderBevs();
+          renderAmount();
+        });
+        wrap.appendChild(chip);
+      });
+    }
+
+    // ── Render amount ─────────────────────────────────────────────────────────
+    function renderAmount() {
+      document.getElementById('amount-num').textContent = amount;
+      const eff = Math.round(amount * selectedBev.bhi);
+      document.getElementById('bhi-info').textContent =
+        'BHI ' + selectedBev.bhi.toFixed(2) + ' — ' + eff + ' ml effective hydration';
+      document.getElementById('log-btn-text').textContent = 'Log ' + eff + ' ml';
+    }
+
+    // ── Amount buttons ────────────────────────────────────────────────────────
+    const STEPS = [50, 100, 150, 200, 250, 300, 330, 350, 400, 500, 600, 750, 1000];
+
+    function changeAmount(dir) {
+      const idx = STEPS.indexOf(amount);
+      if (dir > 0) {
+        amount = idx < STEPS.length - 1 ? STEPS[idx + 1] : STEPS[STEPS.length - 1];
+      } else {
+        amount = idx > 0 ? STEPS[idx - 1] : STEPS[0];
+      }
+      // If current amount not in steps, find nearest
+      if (idx === -1) {
+        const nearest = STEPS.reduce((a,b) => Math.abs(b-amount) < Math.abs(a-amount) ? b : a);
+        amount = dir > 0 ? (STEPS[STEPS.indexOf(nearest)+1] || nearest) : (STEPS[STEPS.indexOf(nearest)-1] || nearest);
+      }
+      renderAmount();
+    }
+
+    document.getElementById('btn-minus').addEventListener('pointerdown', () => changeAmount(-1));
+    document.getElementById('btn-plus').addEventListener('pointerdown',  () => changeAmount(+1));
+
+    // ── Log drink ─────────────────────────────────────────────────────────────
+    document.getElementById('log-btn').addEventListener('pointerdown', () => {
+      const rawMl = amount;
+      const effMl = Math.round(rawMl * selectedBev.bhi);
+      const today = todayKey();
+
+      let data = load();
+      if (!data) {
+        // App not set up yet — redirect to main app
+        window.location.href = './index.html';
+        return;
+      }
+
+      if (!data.dailyLogs) data.dailyLogs = {};
+      if (!data.dailyLogs[today]) data.dailyLogs[today] = { rawIntake:0, effIntake:0, logs:[] };
+
+      const log = data.dailyLogs[today];
+      log.rawIntake = (log.rawIntake || 0) + rawMl;
+      log.effIntake = (log.effIntake || 0) + effMl;
+      log.logs = log.logs || [];
+      log.logs.push({ time: Date.now(), rawMl, effMl, beverageId: selectedBev.id });
+
+      // XP
+      data.xp = Math.min((data.xp || 0) + 5, 9999);
+
+      // First drop badge
+      if (!(data.earnedBadges || []).includes('first_drop')) {
+        data.earnedBadges = [...(data.earnedBadges || []), 'first_drop'];
+      }
+
+      save(data);
+
+      // Visual feedback
+      const btn = document.getElementById('log-btn');
+      btn.classList.add('success');
+      document.getElementById('log-btn-text').textContent = '✓ Logged ' + effMl + ' ml';
+
+      const toast = document.getElementById('toast');
+      toast.textContent = '+' + effMl + ' ml logged';
+      toast.classList.add('show');
+
+      renderProgress();
+
+      setTimeout(() => {
+        btn.classList.remove('success');
+        renderAmount();
+        toast.classList.remove('show');
+      }, 2000);
+    });
+
+    // ── Init ──────────────────────────────────────────────────────────────────
+    renderBevs();
+    renderAmount();
+    renderProgress();
+
+    // Register service worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
+    }
+  </script>
+</body>
+</html>
