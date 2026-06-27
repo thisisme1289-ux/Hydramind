@@ -2,7 +2,7 @@
   "name": "HydraMind",
   "short_name": "HydraMind",
   "description": "Smart hydration tracking with BHI scoring",
-  "start_url": "./index.html",
+  "start_url": "./app.html",
   "scope": "./",
   "display": "standalone",
   "background_color": "#080808",

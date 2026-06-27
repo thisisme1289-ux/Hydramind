@@ -6,6 +6,7 @@ const CACHE = 'hydramind-v6';
 const PRECACHE = [
   './',
   './index.html',
+  './app.html',
   './about.html',
   './quick-log.html',
   './manifest.json',
@@ -81,7 +82,7 @@ self.addEventListener('message', e => {
         renotify: true,
         vibrate:  [200, 100, 200],
         actions:  [{ action:'open', title:'Log drink' }],
-        data:     { url: './index.html' }
+        data:     { url: './app.html' }
       })
     );
   }
@@ -99,7 +100,7 @@ self.addEventListener('notificationclick', e => {
       for (const client of list) {
         if (client.url.includes('Hydramind') && 'focus' in client) return client.focus();
       }
-      if (clients.openWindow) return clients.openWindow('./index.html');
+      if (clients.openWindow) return clients.openWindow('./app.html');
     })
   );
 });
