@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <meta name="theme-color" content="#080808"/>
+  <title>About HydraMind - Smart Hydration App</title>
+  <link rel="manifest" href="manifest.json"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    html{background:#080808;color:#E8E4DC;scroll-behavior:smooth;}
+    body{
+      min-height:100vh;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:#080808;color:#E8E4DC;
+      -webkit-font-smoothing:antialiased;
+    }
+    img{display:block;max-width:100%;}
+    a{color:inherit;text-decoration:none;}
+    .wrap{width:min(1160px,100%);margin:0 auto;padding:0 clamp(18px,5vw,52px);}
+    header{
+      position:sticky;top:0;z-index:10;
+      background:rgba(8,8,8,0.84);backdrop-filter:blur(18px);
+      border-bottom:1px solid rgba(232,228,220,0.08);
+    }
+    .nav{height:76px;display:flex;align-items:center;justify-content:space-between;gap:18px;}
+    .brand{display:flex;align-items:center;gap:12px;font-weight:850;letter-spacing:0.02em;}
+    .mark{width:36px;height:36px;border-radius:9px;background:#4D918A;display:grid;place-items:center;color:#080808;font-weight:900;}
+    .nav-actions{display:flex;align-items:center;gap:12px;}
+    .navlink{font-size:12px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:#B8B2A8;}
+    .btn{
+      min-height:52px;padding:0 22px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;
+      font-size:13px;font-weight:850;letter-spacing:0.12em;text-transform:uppercase;border:1px solid rgba(232,228,220,0.14);
+      cursor:pointer;
+    }
+    .primary{background:#E8E4DC;color:#080808;border-color:#E8E4DC;}
+    .secondary{background:#121212;color:#E8E4DC;}
+    .ghost{background:transparent;color:#E8E4DC;}
+    .hero{padding:72px 0 46px;}
+    .hero-grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(280px,0.95fr);gap:42px;align-items:center;}
+    .eyebrow{font-size:12px;font-weight:900;letter-spacing:0.2em;text-transform:uppercase;color:#69A59E;margin-bottom:16px;}
+    h1{font-size:clamp(44px,8vw,86px);line-height:0.94;letter-spacing:0;font-weight:950;margin-bottom:24px;}
+    .lead{font-size:clamp(17px,2vw,21px);line-height:1.62;color:#C9C2B8;max-width:680px;margin-bottom:30px;}
+    .actions{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:28px;}
+    .hero-points{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;max-width:760px;}
+    .point{border-top:1px solid rgba(232,228,220,0.12);padding-top:15px;}
+    .point strong{display:block;font-size:13px;margin-bottom:7px;}
+    .point span{display:block;font-size:13px;line-height:1.5;color:#9A9690;}
+    .shot-frame{
+      border:1px solid rgba(232,228,220,0.14);border-radius:24px;overflow:hidden;background:#101010;
+      box-shadow:0 24px 80px rgba(0,0,0,0.45);
+    }
+    .phone-shot{width:min(390px,100%);margin:0 auto;border-radius:28px;overflow:hidden;border:1px solid rgba(232,228,220,0.16);}
+    .section{padding:54px 0;border-top:1px solid rgba(232,228,220,0.08);}
+    .section-head{display:grid;grid-template-columns:minmax(0,0.8fr) minmax(0,1.2fr);gap:28px;margin-bottom:30px;}
+    h2{font-size:clamp(28px,4vw,48px);line-height:1.02;font-weight:900;letter-spacing:0;margin-bottom:12px;}
+    .section-head p,.muted{color:#B8B2A8;font-size:16px;line-height:1.65;}
+    .feature-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;}
+    .feature{background:#101010;border:1px solid rgba(232,228,220,0.08);border-radius:8px;padding:20px;min-height:160px;}
+    .feature .num{font-size:11px;font-weight:900;letter-spacing:0.18em;color:#69A59E;margin-bottom:20px;}
+    .feature h3{font-size:18px;margin-bottom:10px;}
+    .feature p{font-size:14px;line-height:1.55;color:#9A9690;}
+    .gallery{display:grid;grid-template-columns:0.9fr 1.1fr;gap:18px;align-items:start;}
+    .gallery-stack{display:grid;gap:18px;}
+    .caption{padding:14px 16px;border-top:1px solid rgba(232,228,220,0.08);font-size:13px;line-height:1.5;color:#9A9690;}
+    .caption strong{display:block;color:#E8E4DC;font-size:14px;margin-bottom:4px;}
+    .steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;}
+    .step{border-left:1px solid rgba(232,228,220,0.12);padding:0 16px 0 18px;}
+    .step b{display:block;color:#69A59E;font-size:12px;letter-spacing:0.16em;margin-bottom:12px;}
+    .step strong{display:block;font-size:17px;margin-bottom:8px;}
+    .step span{display:block;color:#9A9690;font-size:14px;line-height:1.55;}
+    .download-band{background:#E8E4DC;color:#080808;border-radius:10px;padding:34px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:center;}
+    .download-band h2{color:#080808;margin-bottom:8px;}
+    .download-band p{color:#383531;line-height:1.55;}
+    .download-band .btn.secondary{background:#080808;color:#E8E4DC;border-color:#080808;}
+    footer{padding:28px 0 40px;color:#6E6963;font-size:13px;}
+    @media(max-width:900px){
+      .hero-grid,.section-head,.gallery,.download-band{grid-template-columns:1fr;}
+      .hero{padding-top:42px;}
+      .hero-points,.feature-grid,.steps{grid-template-columns:1fr;}
+      .nav{height:auto;padding:16px 0;align-items:flex-start;}
+      .nav-actions{flex-wrap:wrap;justify-content:flex-end;}
+      .download-band{padding:24px;}
+    }
+    @media(max-width:520px){
+      .nav-actions .navlink{display:none;}
+      .btn{width:100%;}
+      .actions{display:grid;}
+      .download-band .actions{margin-bottom:0;}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap nav">
+      <a class="brand" href="./index.html"><span class="mark">H</span><span>HydraMind</span></a>
+      <div class="nav-actions">
+        <a class="navlink" href="#features">Features</a>
+        <a class="navlink" href="#screenshots">Screenshots</a>
+        <a class="btn ghost" href="./index.html">Use Web App</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="wrap hero-grid">
+        <div>
+          <div class="eyebrow">About the website and app</div>
+          <h1>HydraMind turns hydration into a daily system.</h1>
+          <p class="lead">HydraMind is a smart hydration tracker for people who want more than a simple water counter. The website lets you open the web app instantly or download the Android APK, while the app helps you calculate a personal goal, log drinks, understand hydration quality, and build a consistent habit.</p>
+          <div class="actions">
+            <a class="btn primary" href="./downloads/HydraMind.apk" download>Download APK</a>
+            <a class="btn secondary" href="./index.html">Use Web App</a>
+          </div>
+          <div class="hero-points">
+            <div class="point"><strong>Personal targets</strong><span>Goals adapt to body profile, activity, climate, sleep schedule, and weather.</span></div>
+            <div class="point"><strong>BHI drink scoring</strong><span>Water, tea, coffee, milk, juice, and sports drinks count with different hydration value.</span></div>
+            <div class="point"><strong>Habit feedback</strong><span>Streaks, XP, reports, reminders, and share cards keep progress visible.</span></div>
+          </div>
+        </div>
+        <div class="phone-shot">
+          <img src="./assets/screenshots/app-dashboard.png" alt="HydraMind dashboard screenshot showing today's hydration progress"/>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="features">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">Complete app coverage</div>
+            <h2>Everything the app is built to do.</h2>
+          </div>
+          <p>HydraMind combines onboarding, daily logging, hydration scoring, adaptive goals, reminders, analytics, and install options into one focused experience. It works as a browser app and as an Android APK.</p>
+        </div>
+        <div class="feature-grid">
+          <article class="feature"><div class="num">01</div><h3>Guided onboarding</h3><p>Collects age, gender, weight, height, activity, climate, health conditions, and schedule details to calculate a better daily target.</p></article>
+          <article class="feature"><div class="num">02</div><h3>Adaptive hydration goal</h3><p>Uses personal data and weather context to adjust the recommended daily intake instead of giving everyone the same target.</p></article>
+          <article class="feature"><div class="num">03</div><h3>BHI scoring</h3><p>Each beverage has a hydration impact score, so logged drinks contribute to effective intake more realistically.</p></article>
+          <article class="feature"><div class="num">04</div><h3>Fast daily logging</h3><p>One-tap amounts, beverage selection, undo support, and a dedicated quick-log page make repeated tracking easier.</p></article>
+          <article class="feature"><div class="num">05</div><h3>Reminders and notifications</h3><p>Users can set hydration reminders and receive browser or app-style prompts when it is time to drink.</p></article>
+          <article class="feature"><div class="num">06</div><h3>Reports and insights</h3><p>Progress screens show intake trends, goal completion, streaks, hydration score, and daily consistency patterns.</p></article>
+          <article class="feature"><div class="num">07</div><h3>Streaks, XP, and badges</h3><p>Small achievement loops make hydration feel trackable without turning the app into a distraction.</p></article>
+          <article class="feature"><div class="num">08</div><h3>Shareable progress cards</h3><p>Users can generate a visual hydration stats card and save or share it from supported devices.</p></article>
+          <article class="feature"><div class="num">09</div><h3>Web and APK access</h3><p>The about page offers both options, and the web app can remind users to download the Android APK twice a week.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="screenshots">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">Real screenshots</div>
+            <h2>What users actually see.</h2>
+          </div>
+          <p>These captures are taken from the current website and app build: the daily tracker, the quick logging tool, and the download page users can visit before opening the web app or installing the APK.</p>
+        </div>
+        <div class="gallery">
+          <div class="gallery-stack">
+            <figure class="shot-frame">
+              <img src="./assets/screenshots/app-dashboard.png" alt="HydraMind main app dashboard screenshot"/>
+              <figcaption class="caption"><strong>Main dashboard</strong>Shows today's target, remaining intake, beverage BHI scores, quick amounts, recent logs, reminders, and bottom navigation.</figcaption>
+            </figure>
+            <figure class="shot-frame">
+              <img src="./assets/screenshots/quick-log.png" alt="HydraMind quick log screen screenshot"/>
+              <figcaption class="caption"><strong>Quick log</strong>A focused page for adding a drink quickly with beverage type, amount controls, and daily progress.</figcaption>
+            </figure>
+          </div>
+          <figure class="shot-frame">
+            <img src="./assets/screenshots/about-page.png" alt="HydraMind about and download page screenshot"/>
+            <figcaption class="caption"><strong>Website entry page</strong>Explains the product and gives users the choice to download the Android APK or open the web app.</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">How it works</div>
+            <h2>From first visit to daily habit.</h2>
+          </div>
+          <p>The website introduces HydraMind, then sends users into the app experience. From there, the app calculates a target, tracks intake, and nudges users toward the APK option without interrupting every visit.</p>
+        </div>
+        <div class="steps">
+          <div class="step"><b>STEP 01</b><strong>Choose access</strong><span>Download the APK for Android or open the browser-based app immediately.</span></div>
+          <div class="step"><b>STEP 02</b><strong>Set profile</strong><span>Complete onboarding so the app can calculate a personalized daily hydration target.</span></div>
+          <div class="step"><b>STEP 03</b><strong>Log drinks</strong><span>Add water or other beverages and see effective hydration update instantly.</span></div>
+          <div class="step"><b>STEP 04</b><strong>Review progress</strong><span>Use reports, streaks, reminders, XP, and badges to keep the habit alive.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="download-band">
+          <div>
+            <h2>Ready to use HydraMind?</h2>
+            <p>Install the Android APK for a mobile-app experience, or continue with the web app in your browser. Both options use the same core hydration tracker.</p>
+          </div>
+          <div class="actions">
+            <a class="btn secondary" href="./downloads/HydraMind.apk" download>Download APK</a>
+            <a class="btn ghost" href="./index.html">Use Web App</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">HydraMind stores app data locally on the device. The APK download is served from this website build.</div>
+  </footer>
+
+  <script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('./sw.js').catch(function(){});});}</script>
+</body>
+</html>

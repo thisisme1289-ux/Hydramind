@@ -1,15 +1,19 @@
 // HydraMind Service Worker — v5
 // Offline-first + notification support
 
-const CACHE = 'hydramind-v5';
+const CACHE = 'hydramind-v6';
 
 const PRECACHE = [
   './',
   './index.html',
+  './about.html',
   './quick-log.html',
   './manifest.json',
-  'https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js',
+  './vendor/react.production.min.js',
+  './vendor/react-dom.production.min.js',
+  './assets/screenshots/app-dashboard.png',
+  './assets/screenshots/quick-log.png',
+  './assets/screenshots/about-page.png',
 ];
 
 // ── Install ───────────────────────────────────────────────────────────────────

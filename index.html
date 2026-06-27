@@ -20,8 +20,8 @@
 <body>
   <div id="root"></div><div id="err"></div>
   <script>window.onerror=function(m,s,l,c,e){var d=document.getElementById('err');d.style.display='block';d.textContent='ERROR line '+l+':\n'+m+'\n\n'+(e?e.stack:'');};</script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="vendor/react.production.min.js"></script>
+  <script src="vendor/react-dom.production.min.js"></script>
   <script>const { useState, useEffect, useRef, useCallback } = React;
 
 // ─── STORAGE ──────────────────────────────────────────────────────────────────
@@ -180,6 +180,40 @@ function defaultState() {
     streak: { current:0, best:0, lastDate:null },
     xp:0, earnedBadges:[], onboarded:false,
   };
+}
+
+const APK_DOWNLOAD_URL = "./downloads/HydraMind.apk";
+const APK_PROMPT_KEY_PREFIX = "hm_apk_prompt_";
+const APK_PROMPT_LAST_KEY = "hm_apk_prompt_last";
+
+function apkPromptWeekKey(date = new Date()) {
+  const start = new Date(date.getFullYear(), 0, 1);
+  const day = Math.floor((date - start) / 86400000);
+  return `${date.getFullYear()}_${Math.floor(day / 7) + 1}`;
+}
+
+function shouldShowApkPrompt() {
+  try {
+    if (window.Capacitor && typeof window.Capacitor.isNativePlatform === "function" && window.Capacitor.isNativePlatform()) return false;
+    const weekKey = APK_PROMPT_KEY_PREFIX + apkPromptWeekKey();
+    const shownThisWeek = parseInt(localStorage.getItem(weekKey) || "0", 10) || 0;
+    if (shownThisWeek >= 2) return false;
+
+    const lastShown = parseInt(localStorage.getItem(APK_PROMPT_LAST_KEY) || "0", 10) || 0;
+    const threeDays = 3 * 24 * 60 * 60 * 1000;
+    return !lastShown || Date.now() - lastShown >= threeDays;
+  } catch(e) {
+    return false;
+  }
+}
+
+function recordApkPromptShown() {
+  try {
+    const weekKey = APK_PROMPT_KEY_PREFIX + apkPromptWeekKey();
+    const shownThisWeek = parseInt(localStorage.getItem(weekKey) || "0", 10) || 0;
+    localStorage.setItem(weekKey, String(Math.min(shownThisWeek + 1, 2)));
+    localStorage.setItem(APK_PROMPT_LAST_KEY, String(Date.now()));
+  } catch(e) {}
 }
 
 // ─── DESIGN SYSTEM ────────────────────────────────────────────────────────────
@@ -1949,6 +1983,47 @@ function Nav({ active, navigate }) {
 }
 
 // ─── ROOT ─────────────────────────────────────────────────────────────────────
+function ApkDownloadPrompt({ onClose }) {
+  const close = () => {
+    onClose();
+  };
+
+  return (
+    React.createElement('div', { style: {
+      position:"fixed",
+      inset:0,
+      zIndex:9500,
+      background:"rgba(8,8,8,0.72)",
+      backdropFilter:"blur(18px)",
+      display:"flex",
+      alignItems:"flex-end",
+      justifyContent:"center",
+      padding:"18px",
+      paddingBottom:"calc(18px + env(safe-area-inset-bottom))",
+    },}
+      , React.createElement('div', { style: {
+        width:"100%",
+        maxWidth:420,
+        background:T.surface,
+        border:`1px solid ${T.borderMed}`,
+        borderRadius:18,
+        padding:22,
+        boxShadow:"0 24px 80px rgba(0,0,0,0.55)",
+        animation:"slideUp 0.24s ease",
+      },}
+        , React.createElement('div', { className:"label", style:{ marginBottom:10 },}, "Android app available")
+        , React.createElement('div', { style:{ fontSize:24, fontWeight:700, color:T.bone, lineHeight:1.12, marginBottom:10 },}, "Download HydraMind APK")
+        , React.createElement('p', { style:{ color:T.boneDim, fontSize:14, lineHeight:1.55, marginBottom:18 },}, "Use HydraMind as a mobile app with the same focused hydration tracker, quick logs, reminders, and progress views.")
+        , React.createElement('div', { style:{ display:"flex", flexDirection:"column", gap:10 },}
+          , React.createElement('a', { className:"btn-solid", href:APK_DOWNLOAD_URL, download:"HydraMind.apk", onClick:close, style:{ textAlign:"center", textDecoration:"none" },}, "Download APK")
+          , React.createElement('a', { className:"btn-outline", href:"./about.html", onClick:close, style:{ textAlign:"center", textDecoration:"none" },}, "Learn More")
+          , React.createElement('button', { className:"btn-outline", onClick:close, style:{ borderColor:"transparent", color:T.boneDim },}, "Continue Web App")
+        )
+      )
+    )
+  );
+}
+
 function App() {
   const [app, setAppRaw] = useState(null);
   const [screen, setScreen] = useState("splash");
@@ -1956,6 +2031,7 @@ function App() {
   const [toasts, setToasts] = useState([]);
   const [showInstall, setShowInstall] = useState(false);
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
+  const [showApkPrompt, setShowApkPrompt] = useState(false);
   const [showShare, setShowShare] = useState(false);
   const [nextReminder, setNextReminder] = useState(null);
   const [weather, setWeather] = useState(null);
@@ -2025,7 +2101,10 @@ function App() {
       fetchWeather();
       // Show install prompt once ever — check localStorage flag
       try {
-        if(!localStorage.getItem('hm_install_shown')){
+        if(shouldShowApkPrompt()){
+          recordApkPromptShown();
+          setTimeout(()=>setShowApkPrompt(true), 1000);
+        } else if(!localStorage.getItem('hm_install_shown')){
           setTimeout(()=>setShowInstallPrompt(true), 800);
         }
       } catch(e){}
@@ -2232,6 +2311,7 @@ function App() {
         )
         , React.createElement(Toast, { toasts: toasts, onDismiss: id=>setToasts(p=>p.filter(t=>t.id!==id)),})
         , showInstall && React.createElement(InstallModal, { onClose: ()=>setShowInstall(false),})
+        , showApkPrompt && React.createElement(ApkDownloadPrompt, { onClose: ()=>setShowApkPrompt(false),})
         , showInstallPrompt && (
           React.createElement(FirstTimeInstallPrompt, {
             onClose: ()=>{ setShowInstallPrompt(false); try{localStorage.setItem('hm_install_shown','1');}catch(e){} },
